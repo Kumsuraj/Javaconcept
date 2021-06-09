@@ -1,0 +1,32 @@
+String fileId = request.getParameter("fileId");
+            AttachFileVO attachFileVO = new AttachFileVO();
+            attachFileVO.setFileId(fileId);       
+            AttachFileVO attachFile = applicationService.getAttachFile(attachFileVO);
+            String fileName = attachFile.getFileName();
+            String formatFileName = CommonUtil.encodingFileName(fileName);  
+            if(attachFile!=null&&attachFile.getFileContent()!=null){
+                InputStream in = null;
+                OutputStream os = null;
+                try{               
+                    response.reset();
+                    response.setContentType(attachFile.getFileType());
+                    response.setHeader("Content-Disposition", "attachment;filename="+formatFileName);
+ 
+                    in = new ByteArrayInputStream(attachFile.getFileContent());
+                    byte[] buffer = new byte[1024];
+                    os = response.getOutputStream();
+                    while (in.read(buffer) > 0) {
+                        os.write(buffer);
+                    }               
+                }catch(Exception ex){
+                    throw ex;
+                }finally{
+                    if(in!=null){
+                        in.close();
+                    }
+                    if(os!=null){
+                        os.close();
+                    }                   
+                }               
+                return null;
+            }
